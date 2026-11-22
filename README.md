@@ -112,3 +112,7 @@ Channel voice messages (notes, control change, program change, pitch bend, after
 | Characteristic | `7772E5DB-3868-4112-A1A9-F2669D106BF3` |
 
 Packets follow the MMA / Apple BLE-MIDI layout: a header, then a timestamp byte before each MIDI message.
+
+## License
+
+LeMidiReci is free software, released under the [GNU General Public License v3.0](LICENSE) or, at your option, any later version.
