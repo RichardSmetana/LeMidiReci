@@ -33,17 +33,13 @@
 #define SERIAL_MODE 2
 
 // 1 = use the OLED, 0 = display off. The sketch runs with no display fitted.
-#define USE_DISPLAY 0
+#define USE_DISPLAY 1
 
 // The core defines LED_BUILTIN itself. Clear it so the line below takes effect.
 #ifdef LED_BUILTIN
 #undef LED_BUILTIN
 #endif
-// Activity LED. Comment this out to leave the pin untouched.
-// GPIO 8 is a strapping pin on the ESP32-C3. Enable it only on a board that wires an LED there.
-#define LED_BUILTIN 8
-// 1 = the LED lights when the pin is low. 0 = the LED lights when the pin is high.
-#define LED_ACTIVE_LOW 1
+
 
 // Hardware MIDI out at 31250 8N1. Independent of SERIAL_MODE.
 // 1 = send remapped MIDI on the UART below. 0 = UART silent and pins untouched.
@@ -53,9 +49,16 @@
 #if IS_ESP32C3
 #define MIDI_UART_TX 7
 #define MIDI_UART_RX 6
+// Activity LED. Comment this out to leave the pin untouched.
+// GPIO 8 is a strapping pin on the ESP32-C3. Enable it only on a board that wires an LED there.
+#define LED_BUILTIN 8
+// 1 = the LED lights when the pin is low. 0 = the LED lights when the pin is high.
+#define LED_ACTIVE_LOW 1
 #else
 #define MIDI_UART_TX 17
 #define MIDI_UART_RX 16
+//#define LED_BUILTIN 8
+//#define LED_ACTIVE_LOW 1
 #endif
 
 #if ENABLE_UART_MIDI
@@ -72,13 +75,13 @@
 #endif
 #if IS_ESP32C3
 #if MIDI_UART_TX == 2 || MIDI_UART_TX == 8 || MIDI_UART_TX == 9 || MIDI_UART_TX == 18 || MIDI_UART_TX == 19 \
-    || MIDI_UART_RX == 2 || MIDI_UART_RX == 8 || MIDI_UART_RX == 9 || MIDI_UART_RX == 18 || MIDI_UART_RX == 19
+  || MIDI_UART_RX == 2 || MIDI_UART_RX == 8 || MIDI_UART_RX == 9 || MIDI_UART_RX == 18 || MIDI_UART_RX == 19
 #error MIDI UART pins collide with USB or a strapping pin on the ESP32-C3
 #endif
 #define MIDI_UART Serial1
 #else
 #if MIDI_UART_TX == 0 || MIDI_UART_TX == 1 || MIDI_UART_TX == 3 || (MIDI_UART_TX >= 6 && MIDI_UART_TX <= 11) \
-    || MIDI_UART_RX == 0 || MIDI_UART_RX == 1 || MIDI_UART_RX == 3 || (MIDI_UART_RX >= 6 && MIDI_UART_RX <= 11)
+  || MIDI_UART_RX == 0 || MIDI_UART_RX == 1 || MIDI_UART_RX == 3 || (MIDI_UART_RX >= 6 && MIDI_UART_RX <= 11)
 #error MIDI UART pins collide with boot, the USB-UART console, or flash on the ESP32-WROOM-32
 #endif
 #define MIDI_UART Serial2
@@ -103,8 +106,8 @@
 // id is the BLE address (aa:bb:cc:dd:ee:ff) or the advertised name.
 // An address match wins. The first match wins. With no match the channel stays 1.
 static const DeviceChannel kDeviceChannels[] = {
-    {"SMC-PAD Pocket", 2},
-    {"SMC-PAD", 3},
+  { "SMC-PAD Pocket", 2 },
+  { "SMC-PAD", 3 },
 };
 
 #if USE_DISPLAY
@@ -316,7 +319,7 @@ const char* nameFor(const char* address) {
 
 uint8_t channelFor(const char* address) {
   return midiChannelFor(address, nameFor(address), kDeviceChannels,
-                         sizeof(kDeviceChannels) / sizeof(kDeviceChannels[0]));
+                        sizeof(kDeviceChannels) / sizeof(kDeviceChannels[0]));
 }
 
 void makeLabel(char* dest, size_t size, const char* address) {
@@ -901,9 +904,7 @@ void printStats() {
     return;
   }
   lastPrint = now;
-  bool changed = statMessages != seenMessages || statErrors != seenErrors || statOverflows != seenOverflows ||
-                 statWraps != seenWraps || statClock != seenClock || statSense != seenSense ||
-                 uartQueue.drops != seenUartDrops || usbQueue.drops != seenUsbDrops || debugDrops != seenDebugDrops;
+  bool changed = statMessages != seenMessages || statErrors != seenErrors || statOverflows != seenOverflows || statWraps != seenWraps || statClock != seenClock || statSense != seenSense || uartQueue.drops != seenUartDrops || usbQueue.drops != seenUsbDrops || debugDrops != seenDebugDrops;
   if (!changed) {
     return;
   }
@@ -964,7 +965,7 @@ void setup() {
 
   NimBLEService* midiService = pServer->createService(midiServiceUuid);
   NimBLECharacteristic* midiChar = midiService->createCharacteristic(
-      midiCharUuid, NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_NR | NIMBLE_PROPERTY::NOTIFY);
+    midiCharUuid, NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_NR | NIMBLE_PROPERTY::NOTIFY);
   midiChar->setValue((uint8_t)0x80);
   midiChar->setCallbacks(&midiCallbacks);
 
